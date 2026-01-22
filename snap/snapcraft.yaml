@@ -9,6 +9,12 @@ description: |
 grade: stable
 confinement: strict
 
+title: RAM Monitor
+contact: djordjepuzic@gmail.com
+license: MIT
+source-code: https://github.com/djordjep/ram-monitor-snap
+website: https://github.com/djordjep/ram-monitor-snap
+
 plugs:
   desktop: {}
   desktop-legacy: {}
