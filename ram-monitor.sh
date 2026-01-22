@@ -11,11 +11,14 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 RAM Monitor - Linux RAM usage monitoring daemon
 
 USAGE:
-    ram-monitor.sh [OPTIONS] [THRESHOLD]
+    ram-monitor.sh [OPTIONS]
+    RAM_THRESHOLD=70 ram-monitor.sh
+
+ENVIRONMENT VARIABLES:
+    RAM_THRESHOLD       RAM usage threshold percentage (default: 80)
 
 OPTIONS:
     -h, --help          Show this help message
-    THRESHOLD           RAM usage threshold percentage (default: 80)
 
 DESCRIPTION:
     Monitors system RAM usage continuously and sends desktop notifications
@@ -26,15 +29,22 @@ DESCRIPTION:
     Cooldown after alert: 5 minutes
 
 EXAMPLES:
-    ram-monitor.sh              # Monitor with default 80% threshold
-    ram-monitor.sh 50           # Monitor with 50% threshold
-    ram-monitor.sh --help       # Show this help message
+    ram-monitor.sh                    # Monitor with default 80% threshold
+    RAM_THRESHOLD=70 ram-monitor.sh   # Monitor with 70% threshold (temporary)
+    ram-monitor.sh --help            # Show this help message
+
+CONFIGURATION:
+    Set permanently: sudo snap set ram-monitor ram-threshold=75
+    Check setting: snap get ram-monitor ram-threshold
+    Reset to default: sudo snap unset ram-monitor ram-threshold
 
 EOF
     exit 0
 fi
 
-threshold=${1:-80}
+# Priority: Environment Variable > Snap Config > Command Line Arg > Default
+threshold=${RAM_THRESHOLD:-$(snapctl get ram-threshold 2>/dev/null || echo "")}
+threshold=${threshold:-${1:-80}}
 interval=60  # Check interval in seconds (edit as needed)
 
 echo "Monitoring RAM with threshold: $threshold%"
