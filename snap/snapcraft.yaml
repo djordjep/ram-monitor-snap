@@ -1,0 +1,31 @@
+name: ram-monitor
+base: core22          # or core24 — newer bases are fine too
+version: '0.1'
+summary: Simple RAM usage monitor with notifications
+description: |
+  Background tool that checks RAM usage periodically and sends
+  desktop notifications when a user-defined threshold is exceeded.
+
+grade: stable
+confinement: strict
+
+plugs:
+  desktop: {}
+  desktop-legacy: {}
+
+apps:
+  ram-monitor:
+    command: usr/bin/ram-monitor.sh
+    daemon: simple               # runs forever in background
+    restart-condition: always
+    plugs: [desktop]
+
+parts:
+  ram-monitor:
+    plugin: dump
+    source: .
+    organize:
+      ram-monitor.sh: usr/bin/ram-monitor.sh
+    stage-packages:
+      - bc                       # needed for comparisons
+      - libnotify-bin            # provides notify-send
