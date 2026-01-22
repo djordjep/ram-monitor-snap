@@ -101,6 +101,15 @@ used=$(free -m | awk '/Mem/ {print $3}')       # Used RAM in MB
 percentage=$(awk "BEGIN {printf \"%.2f\", $used/$total * 100}")
 ```
 
+### RAM Percentage Differences
+**Important**: The script may show different RAM percentages than your system monitor:
+
+- **Script calculation**: Physical memory only (`used/total * 100`)
+- **System monitors**: May include buffers, cache, or use different rounding
+- **Example**: Script shows 53%, system monitor shows 63%
+
+**Recommendation**: Set thresholds based on what the script reports, not your system monitor. Test with `RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor` to see actual behavior.
+
 ### Daemon Configuration
 ```yaml
 daemon: simple               # Basic systemd service
@@ -262,6 +271,21 @@ snap get ram-monitor
 
 # Restart daemon after config changes
 sudo snap restart ram-monitor
+
+# If snap set fails with "no configure hook"
+# Reinstall the snap with configure hook support
+```
+
+#### Threshold Not Triggering
+```bash
+# Test current RAM usage
+free -m | awk '/Mem/ {printf "%.2f", $3/$2 * 100}'
+
+# Test with low threshold to verify
+RAM_THRESHOLD=30 snap run ram-monitor.ram-monitor
+
+# Note: Script uses physical memory only
+# May differ from system monitor readings
 ```
 
 #### Service Won't Start

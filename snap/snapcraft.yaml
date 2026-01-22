@@ -26,6 +26,10 @@ apps:
     restart-condition: always
     plugs: [desktop]
 
+hooks:
+  configure:
+    plugs: [snapd-control]
+
 parts:
   ram-monitor:
     plugin: dump

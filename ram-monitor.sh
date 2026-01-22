@@ -24,6 +24,7 @@ DESCRIPTION:
     Monitors system RAM usage continuously and sends desktop notifications
     when usage exceeds the specified threshold.
 
+    RAM calculation: Physical memory only (may differ from system monitors)
     Default threshold: 80%
     Check interval: 60 seconds
     Cooldown after alert: 5 minutes
@@ -53,10 +54,8 @@ while true; do
     # Get used RAM percentage (Mem line from free, used/total * 100)
     used=$(free -m | awk '/Mem/ {printf "%.2f", $3/$2 * 100}')
 
-    # Compare with threshold using simple shell arithmetic (convert to integers for comparison)
-    used_int=$(printf "%.0f" "$used")
-    threshold_int=$(printf "%.0f" "$threshold")
-    if [ "$used_int" -gt "$threshold_int" ]; then
+    # Compare with threshold using awk (handles floating point correctly)
+    if awk -v used="$used" -v threshold="$threshold" 'BEGIN { exit !(used > threshold) }'; then
         notify-send "High RAM Usage Alert" "Current usage: $used% (exceeds $threshold%)"
         # Optional: Add a cooldown to avoid spamming notifications
         sleep 300  # Wait 5 minutes before checking again after alert
