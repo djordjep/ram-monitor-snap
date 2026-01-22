@@ -1,0 +1,26 @@
+# Build artifacts
+*.snap
+parts/
+stage/
+prime/
+
+# Log files
+*.log
+snapcraft-*.txt
+
+# Temporary files
+*.tmp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test output
+WOULD*
