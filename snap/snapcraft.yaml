@@ -1,6 +1,6 @@
 name: ram-monitor
 base: core22          # or core24 — newer bases are fine too
-version: '0.1'
+version: '0.1.1'
 summary: Simple RAM usage monitor with notifications
 description: |
   Background tool that checks RAM usage periodically and sends
@@ -25,10 +25,6 @@ apps:
     daemon: simple               # runs forever in background
     restart-condition: always
     plugs: [desktop]
-
-hooks:
-  configure:
-    plugs: [snapd-control]
 
 parts:
   ram-monitor:

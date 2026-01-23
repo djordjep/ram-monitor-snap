@@ -31,21 +31,20 @@ DESCRIPTION:
 
 EXAMPLES:
     ram-monitor.sh                    # Monitor with default 80% threshold
-    RAM_THRESHOLD=70 ram-monitor.sh   # Monitor with 70% threshold (temporary)
+    RAM_THRESHOLD=70 ram-monitor.sh   # Monitor with 70% threshold
     ram-monitor.sh --help            # Show this help message
 
 CONFIGURATION:
-    Set permanently: sudo snap set ram-monitor ram-threshold=75
-    Check setting: snap get ram-monitor ram-threshold
-    Reset to default: sudo snap unset ram-monitor ram-threshold
+    Use RAM_THRESHOLD environment variable to customize threshold.
+    For persistent settings, add to your shell profile:
+    echo 'export RAM_THRESHOLD=75' >> ~/.bashrc && source ~/.bashrc
 
 EOF
     exit 0
 fi
 
-# Priority: Environment Variable > Snap Config > Command Line Arg > Default
-threshold=${RAM_THRESHOLD:-$(snapctl get ram-threshold 2>/dev/null || echo "")}
-threshold=${threshold:-${1:-80}}
+# Priority: Environment Variable > Command Line Arg > Default
+threshold=${RAM_THRESHOLD:-${1:-80}}
 interval=60  # Check interval in seconds (edit as needed)
 
 echo "Monitoring RAM with threshold: $threshold%"

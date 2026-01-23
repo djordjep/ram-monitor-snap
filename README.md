@@ -74,7 +74,7 @@ sudo snap install ram-monitor_*.snap --dangerous
 ## ⚡ Quick Start
 
 1. **Install**: `sudo snap install ram-monitor`
-2. **Configure** (optional): `sudo snap set ram-monitor ram-threshold=75`
+2. **Configure** (optional): `RAM_THRESHOLD=75 snap run ram-monitor.ram-monitor`
 3. **Monitor**: Check system notifications when RAM usage is high
 4. **Status**: `snap services ram-monitor` (should show "active")
 
@@ -191,54 +191,41 @@ Settings are applied in this order (highest priority first):
 
 ### Configuration Methods
 
-#### Method 1: Persistent (Recommended)
-```bash
-# Set threshold permanently
-sudo snap set ram-monitor ram-threshold=75
-
-# Check current setting
-snap get ram-monitor ram-threshold
-
-# Reset to default
-sudo snap unset ram-monitor ram-threshold
-
-# View all settings
-snap get ram-monitor
-```
-
-#### Method 2: Environment Variables
+#### Environment Variables (Primary Method)
 ```bash
 # One-time override
 RAM_THRESHOLD=70 snap run ram-monitor.ram-monitor
 
 # Temporary testing
 RAM_THRESHOLD=50 timeout 60 snap run ram-monitor.ram-monitor
-```
 
-#### Method 3: Command Line (Testing Only)
-```bash
-# Manual run with custom threshold (doesn't work with daemon)
+# Manual run with custom threshold
 RAM_THRESHOLD=60 snap run ram-monitor.ram-monitor
 ```
 
-### Example Configurations
+#### Persistent Configuration
+Add to your shell profile for permanent settings:
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+echo 'export RAM_THRESHOLD=75' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+echo $RAM_THRESHOLD
+```
+
+#### Example Configurations
 
 ```bash
 # Conservative (alert at 70%)
-sudo snap set ram-monitor ram-threshold=70
+RAM_THRESHOLD=70 snap run ram-monitor.ram-monitor
 
 # Aggressive (alert at 90%)
-sudo snap set ram-monitor ram-threshold=90
+RAM_THRESHOLD=90 snap run ram-monitor.ram-monitor
 
 # Development machine (alert at 50%)
-sudo snap set ram-monitor ram-threshold=50
+RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor
 ```
-
-### Configuration Files
-Snap configuration is stored in: `~/snap/ram-monitor/common/`
-- Persistent across updates
-- Survives system reboots
-- User-specific settings
 
 ## 🔍 Troubleshooting
 
@@ -266,14 +253,14 @@ snap connections ram-monitor
 
 #### Configuration Not Applied
 ```bash
-# Check current configuration
-snap get ram-monitor
+# Check if RAM_THRESHOLD is set
+echo $RAM_THRESHOLD
 
-# Restart daemon after config changes
-sudo snap restart ram-monitor
+# Test with explicit environment variable
+RAM_THRESHOLD=70 snap run ram-monitor.ram-monitor
 
-# If snap set fails with "no configure hook"
-# Reinstall the snap with configure hook support
+# For persistent settings, check your shell profile
+grep RAM_THRESHOLD ~/.bashrc ~/.zshrc 2>/dev/null || echo "Not found in profile"
 ```
 
 #### Threshold Not Triggering
@@ -514,7 +501,7 @@ We welcome contributions! Please follow these guidelines:
 - [ ] Custom threshold works: `RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor`
 - [ ] Daemon starts automatically after install
 - [ ] Notifications appear on threshold breach
-- [ ] Configuration persists: `snap set/get ram-monitor ram-threshold`
+- [ ] Environment variable works: `RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor`
 - [ ] Works on different desktop environments
 
 ### Issue Reporting
