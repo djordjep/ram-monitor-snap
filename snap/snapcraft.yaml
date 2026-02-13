@@ -1,6 +1,6 @@
 name: ram-monitor
-base: core22          # or core24 — newer bases are fine too
-version: '0.1.1'
+base: core24
+version: '0.1.2'
 summary: Simple RAM usage monitor with notifications
 description: |
   Background tool that checks RAM usage periodically and sends
@@ -33,5 +33,4 @@ parts:
     organize:
       ram-monitor.sh: usr/bin/ram-monitor.sh
     stage-packages:
-      - bc                       # needed for comparisons
       - libnotify-bin            # provides notify-send
