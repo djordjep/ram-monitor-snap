@@ -1,6 +1,6 @@
 name: ram-monitor
 base: core24
-version: '0.1.2'
+version: '0.1.3'
 summary: Simple RAM usage monitor with notifications
 description: |
   Background tool that checks RAM usage periodically and sends
@@ -15,16 +15,13 @@ license: MIT
 source-code: https://github.com/djordjep/ram-monitor-snap
 website: https://github.com/djordjep/ram-monitor-snap
 
-plugs:
-  desktop: {}
-  desktop-legacy: {}
-
 apps:
   ram-monitor:
     command: usr/bin/ram-monitor.sh
-    daemon: simple               # runs forever in background
+    daemon: simple
+    daemon-scope: user
     restart-condition: always
-    plugs: [desktop]
+    plugs: [desktop, desktop-legacy, wayland, x11]
 
 parts:
   ram-monitor:

@@ -16,6 +16,8 @@ USAGE:
 
 ENVIRONMENT VARIABLES:
     RAM_THRESHOLD       RAM usage threshold percentage (default: 80)
+    RAM_INTERVAL        Polling interval in seconds (default: 60)
+    RAM_COOLDOWN        Alert cooldown in seconds (default: 300)
 
 OPTIONS:
     -h, --help          Show this help message
@@ -44,21 +46,58 @@ EOF
 fi
 
 # Priority: Environment Variable > Command Line Arg > Default
-threshold=${RAM_THRESHOLD:-${1:-80}}
-interval=60  # Check interval in seconds (edit as needed)
+threshold="${RAM_THRESHOLD:-${1:-80}}"
+interval="${RAM_INTERVAL:-60}"
+cooldown="${RAM_COOLDOWN:-300}"
+last_alert_at=0
 
-echo "Monitoring RAM with threshold: $threshold%"
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [ram-monitor] $*"
+}
+
+validate_number() {
+    awk -v value="$1" 'BEGIN { exit !(value ~ /^[0-9]+(\.[0-9]+)?$/) }'
+}
+
+validate_integer() {
+    awk -v value="$1" 'BEGIN { exit !(value ~ /^[0-9]+$/) }'
+}
+
+if ! validate_number "$threshold"; then
+    log "Invalid RAM threshold: '$threshold' (must be numeric)."
+    exit 1
+fi
+
+if ! validate_integer "$interval"; then
+    log "Invalid RAM interval: '$interval' (must be an integer)."
+    exit 1
+fi
+
+if ! validate_integer "$cooldown"; then
+    log "Invalid RAM cooldown: '$cooldown' (must be an integer)."
+    exit 1
+fi
+
+log "Monitoring RAM with threshold: $threshold%, interval: ${interval}s, cooldown: ${cooldown}s"
 
 while true; do
     # Get used RAM percentage (Mem line from free, used/total * 100)
-    used=$(free -m | awk '/Mem/ {printf "%.2f", $3/$2 * 100}')
+    used="$(free -m | awk '/Mem/ {printf "%.2f", $3/$2 * 100}')"
+    now="$(date +%s)"
 
     # Compare with threshold using awk (handles floating point correctly)
     if awk -v used="$used" -v threshold="$threshold" 'BEGIN { exit !(used > threshold) }'; then
-        notify-send "High RAM Usage Alert" "Current usage: $used% (exceeds $threshold%)"
-        # Optional: Add a cooldown to avoid spamming notifications
-        sleep 300  # Wait 5 minutes before checking again after alert
+        seconds_since_last=$((now - last_alert_at))
+        if [ "$seconds_since_last" -ge "$cooldown" ]; then
+            if notify-send --app-name="RAM Monitor" --urgency=critical \
+                "High RAM Usage Alert" "Current usage: $used% (exceeds $threshold%)"; then
+                log "Alert sent: RAM usage $used% exceeded threshold $threshold%"
+                last_alert_at="$now"
+            else
+                log "notify-send failed (DISPLAY='${DISPLAY:-unset}', DBUS_SESSION_BUS_ADDRESS='${DBUS_SESSION_BUS_ADDRESS:-unset}')."
+            fi
+        fi
     fi
-    
-    sleep $interval
+
+    sleep "$interval"
 done

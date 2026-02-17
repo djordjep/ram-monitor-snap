@@ -89,7 +89,7 @@ Current usage: 85.3% (exceeds 80%)
 ### Architecture
 - **Language**: Bash shell script
 - **Packaging**: Snap (confined sandbox)
-- **Service**: systemd daemon (simple type)
+- **Service**: snap user daemon (systemd simple type)
 - **Monitoring**: `/proc/meminfo` via `free` command
 - **Notifications**: libnotify via `notify-send`
 
@@ -112,9 +112,10 @@ percentage=$(awk "BEGIN {printf \"%.2f\", $used/$total * 100}")
 
 ### Daemon Configuration
 ```yaml
-daemon: simple               # Basic systemd service
+daemon: simple               # Basic daemon
+daemon-scope: user           # Runs in user session (desktop notifications)
 restart-condition: always    # Auto-restart on failure/crash
-plugs: [desktop]            # Access to desktop notifications
+plugs: [desktop, desktop-legacy, wayland, x11]  # Desktop notification paths
 ```
 
 ### Snap Interfaces
@@ -130,7 +131,7 @@ plugs: [desktop]            # Access to desktop notifications
 ## 📖 Usage
 
 ### Daemon Operation
-The RAM monitor runs automatically as a systemd service after installation:
+The RAM monitor runs automatically as a snap service after installation:
 
 ```bash
 # Check status
@@ -536,7 +537,7 @@ For enterprise support or custom development:
 
 ## 📊 Project Status
 
-- **Version**: 0.1.0
+- **Version**: 0.1.3
 - **Status**: Stable & Production Ready
 - **License**: MIT (permissive, open source)
 - **Downloads**: Check [Snap Store](https://snapcraft.io/ram-monitor)

@@ -1,5 +1,6 @@
 # Build artifacts
 *.snap
+.craft/
 parts/
 stage/
 prime/
