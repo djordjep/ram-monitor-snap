@@ -8,7 +8,7 @@
 # Check for help option
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     cat << EOF
-RAM Monitor - Linux RAM usage monitoring daemon
+RAM Monitor - Linux RAM usage monitor
 
 USAGE:
     ram-monitor.sh [OPTIONS]
@@ -77,6 +77,15 @@ if ! validate_integer "$cooldown"; then
     log "Invalid RAM cooldown: '$cooldown' (must be an integer)."
     exit 1
 fi
+
+# Avoid duplicate loops when autostart and manual execution overlap.
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+lock_dir="${runtime_dir}/ram-monitor.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+    log "Another instance is already running; exiting."
+    exit 0
+fi
+trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
 
 log "Monitoring RAM with threshold: $threshold%, interval: ${interval}s, cooldown: ${cooldown}s"
 

@@ -5,14 +5,14 @@
 [![GitHub issues](https://img.shields.io/github/issues/djordjep/ram-monitor-snap)](https://github.com/djordjep/ram-monitor-snap/issues)
 [![GitHub stars](https://img.shields.io/github/stars/djordjep/ram-monitor-snap)](https://github.com/djordjep/ram-monitor-snap/stargazers)
 
-A lightweight Linux RAM usage monitor that runs as a background daemon and sends desktop notifications when memory usage exceeds a specified threshold.
+A lightweight Linux RAM usage monitor that runs in your desktop session and sends notifications when memory usage exceeds a specified threshold.
 
 ## ✨ Features
 
 - **Continuous Monitoring**: Real-time RAM usage tracking every 60 seconds
 - **Desktop Notifications**: Native system notifications when threshold exceeded
 - **Flexible Configuration**: Environment variables, snap config, or command-line
-- **Systemd Integration**: Automatic startup and restart via snap daemon
+- **Desktop Autostart**: Starts automatically when you log into your desktop session
 - **Lightweight**: Minimal resource usage (< 1MB memory, < 0.1% CPU)
 - **Cross-Distribution**: Works on Ubuntu, Fedora, Debian, and other Linux distros
 - **Snap Confinement**: Secure sandboxed execution
@@ -39,7 +39,7 @@ sudo snap install ram-monitor
 
 # Verify installation
 snap list ram-monitor
-snap services ram-monitor
+pgrep -fa ram-monitor.sh
 ```
 
 **What happens after install:**
@@ -76,7 +76,7 @@ sudo snap install ram-monitor_*.snap --dangerous
 1. **Install**: `sudo snap install ram-monitor`
 2. **Configure** (optional): `RAM_THRESHOLD=75 snap run ram-monitor.ram-monitor`
 3. **Monitor**: Check system notifications when RAM usage is high
-4. **Status**: `snap services ram-monitor` (should show "active")
+4. **Status**: `pgrep -fa ram-monitor.sh` (should show running process)
 
 ### Example Notification
 ```
@@ -89,7 +89,7 @@ Current usage: 85.3% (exceeds 80%)
 ### Architecture
 - **Language**: Bash shell script
 - **Packaging**: Snap (confined sandbox)
-- **Service**: snap user daemon (systemd simple type)
+- **Startup model**: Desktop session autostart (`snap/gui/ram-monitor.desktop`)
 - **Monitoring**: `/proc/meminfo` via `free` command
 - **Notifications**: libnotify via `notify-send`
 
@@ -110,11 +110,9 @@ percentage=$(awk "BEGIN {printf \"%.2f\", $used/$total * 100}")
 
 **Recommendation**: Set thresholds based on what the script reports, not your system monitor. Test with `RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor` to see actual behavior.
 
-### Daemon Configuration
+### Startup Configuration
 ```yaml
-daemon: simple               # Basic daemon
-daemon-scope: user           # Runs in user session (desktop notifications)
-restart-condition: always    # Auto-restart on failure/crash
+autostart: ram-monitor.desktop
 plugs: [desktop, desktop-legacy, wayland, x11]  # Desktop notification paths
 ```
 
@@ -130,12 +128,12 @@ plugs: [desktop, desktop-legacy, wayland, x11]  # Desktop notification paths
 
 ## 📖 Usage
 
-### Daemon Operation
-The RAM monitor runs automatically as a snap service after installation:
+### Runtime Operation
+The RAM monitor starts automatically when your desktop session starts:
 
 ```bash
-# Check status
-snap services ram-monitor
+# Check running process
+pgrep -fa ram-monitor.sh
 
 # View logs
 snap logs ram-monitor -f
@@ -234,8 +232,8 @@ RAM_THRESHOLD=50 snap run ram-monitor.ram-monitor
 
 #### No Notifications Appearing
 ```bash
-# Check if daemon is running
-snap services ram-monitor
+# Check if monitor process is running
+pgrep -fa ram-monitor.sh
 
 # Test notifications manually
 notify-send "Test" "This is a test notification"
@@ -322,7 +320,7 @@ sudo snap install ram-monitor
 When reporting issues, please include:
 - `snap version`
 - `snap list ram-monitor`
-- `snap services ram-monitor`
+- `pgrep -fa ram-monitor.sh`
 - `snap connections ram-monitor`
 - Your desktop environment (GNOME, KDE, etc.)
 - Linux distribution and version
@@ -383,8 +381,8 @@ snap run ram-monitor.ram-monitor --help | grep -q "USAGE"
 # Integration test: Custom threshold
 RAM_THRESHOLD=50 timeout 10 snap run ram-monitor.ram-monitor 2>&1 | grep -q "50%"
 
-# Service test: Daemon status
-snap services ram-monitor | grep -q "active"
+# Process test: Monitor is running
+pgrep -fa ram-monitor.sh | grep -q "ram-monitor.sh"
 
 # Configuration test
 sudo snap set ram-monitor ram-threshold=75
@@ -537,7 +535,7 @@ For enterprise support or custom development:
 
 ## 📊 Project Status
 
-- **Version**: 0.1.3
+- **Version**: 0.1.4
 - **Status**: Stable & Production Ready
 - **License**: MIT (permissive, open source)
 - **Downloads**: Check [Snap Store](https://snapcraft.io/ram-monitor)
