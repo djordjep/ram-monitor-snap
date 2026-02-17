@@ -1,10 +1,13 @@
 name: ram-monitor
 base: core24
-version: '0.1.5'
+version: '0.1.7'
 summary: Simple RAM usage monitor with notifications
 description: |
   Background tool that checks RAM usage periodically and sends
   desktop notifications when a user-defined threshold is exceeded.
+
+  NOTE: This snap has limitations. For best experience, consider using
+  the .deb package from: https://github.com/djordjep/ram-monitor-snap/releases
 
 grade: stable
 confinement: strict
@@ -19,7 +22,6 @@ apps:
   ram-monitor:
     command: usr/bin/ram-monitor.sh
     desktop: snap/gui/ram-monitor.desktop
-    autostart: ram-monitor.desktop
     plugs: [desktop, desktop-legacy, wayland, x11]
 
 parts:

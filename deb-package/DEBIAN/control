@@ -1,0 +1,10 @@
+Package: ram-monitor
+Version: 0.2.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: bc, libnotify-bin
+Maintainer: Djordje Puzic <djordjepuzic@gmail.com>
+Description: Simple RAM usage monitor with desktop notifications
+ A lightweight Linux RAM usage monitor that runs in your desktop session
+ and sends notifications when memory usage exceeds a specified threshold.

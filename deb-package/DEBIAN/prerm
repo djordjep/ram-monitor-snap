@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+# Stop and disable the user service
+if [ "$1" = "remove" ]; then
+    echo "ram-monitor: Stopping user service..."
+    systemctl --user stop ram-monitor.service 2>/dev/null || true
+    systemctl --user disable ram-monitor.service 2>/dev/null || true
+fi

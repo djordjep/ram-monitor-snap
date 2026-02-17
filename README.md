@@ -31,22 +31,37 @@ A lightweight Linux RAM usage monitor that runs in your desktop session and send
 
 ## 🚀 Installation
 
-### From Snap Store (Recommended)
+### .deb Package (Recommended)
+
+Download the latest `.deb` package from [GitHub Releases](https://github.com/djordjep/ram-monitor-snap/releases):
+
+```bash
+# Download and install
+wget https://github.com/djordjep/ram-monitor-snap/releases/download/v0.2.0/ram-monitor_0.2.0_amd64.deb
+sudo dpkg -i ram-monitor_0.2.0_amd64.deb
+
+# Verify installation
+systemctl --user status ram-monitor.service
+```
+
+**What happens after install:**
+- ✅ Service starts automatically on login
+- ✅ Monitors with default 80% threshold
+- ✅ Desktop notifications work reliably
+- ✅ Survives system reboots
+- ✅ View logs: `journalctl --user -u ram-monitor`
+
+### Snap Package (Limited)
+
+⚠️ **Note**: Snap has limitations with autostart and notifications. Use `.deb` for best experience.
 
 ```bash
 # Install from Snap Store
 sudo snap install ram-monitor
 
-# Verify installation
-snap list ram-monitor
-pgrep -fa ram-monitor.sh
+# Manual start required
+snap run ram-monitor.ram-monitor
 ```
-
-**What happens after install:**
-- ✅ Daemon starts automatically
-- ✅ Monitors with default 80% threshold
-- ✅ Survives system reboots
-- ✅ Auto-updates when new versions available
 
 ### Manual Installation (Development)
 
@@ -55,10 +70,12 @@ pgrep -fa ram-monitor.sh
 git clone https://github.com/djordjep/ram-monitor-snap.git
 cd ram-monitor-snap
 
-# Build snap (use remote build for production)
-snapcraft remote-build --launchpad-accept-public-upload
+# Build .deb (recommended)
+dpkg-deb --build deb-package ram-monitor_0.1.6_amd64.deb
+sudo dpkg -i ram-monitor_0.1.6_amd64.deb
 
-# Install locally
+# Or build snap (limited functionality)
+snapcraft pack --destructive-mode
 sudo snap install ram-monitor_*.snap --dangerous
 ```
 
@@ -402,12 +419,17 @@ grep -r "sudo\|eval\|source.*http" .
 ```
 
 ### Release Process
+1. **Update version** in `deb-package/DEBIAN/control`
+2. **Build .deb**: `dpkg-deb --build deb-package ram-monitor_*.deb`
+3. **Test installation**: `sudo dpkg -i ram-monitor_*.deb`
+4. **Create GitHub release** with .deb asset
+5. **Update README** with new version links
+
+### Snap Releases (Limited)
+For snap maintenance only:
 1. **Update version** in `snap/snapcraft.yaml`
-2. **Test locally** with destructive build
-3. **Remote build** for production release
-4. **Upload to Snap Store**: `snapcraft upload ram-monitor_*.snap`
-5. **Release**: `snapcraft release ram-monitor <revision> stable`
-6. **Tag GitHub release** with same version
+2. **Build**: `snapcraft pack --destructive-mode`
+3. **Upload**: `snapcraft upload ram-monitor_*.snap --release=stable`
 
 ### Development Dependencies
 - **snapcraft** ≥ 7.0
@@ -535,10 +557,11 @@ For enterprise support or custom development:
 
 ## 📊 Project Status
 
-- **Version**: 0.1.4
-- **Status**: Stable & Production Ready
+- **Version**: 0.2.0
+- **Status**: Production Ready (.deb) / Limited (snap)
 - **License**: MIT (permissive, open source)
-- **Downloads**: Check [Snap Store](https://snapcraft.io/ram-monitor)
+- **Primary Distribution**: [.deb packages](https://github.com/djordjep/ram-monitor-snap/releases)
+- **Alternative**: [Snap Store](https://snapcraft.io/ram-monitor) (manual start required)
 
 ## 🗺️ Roadmap
 

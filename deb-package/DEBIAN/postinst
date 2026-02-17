@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+# Enable and start the user service
+if [ "$1" = "configure" ]; then
+    echo "ram-monitor: Installing user service..."
+    systemctl --user daemon-reload 2>/dev/null || true
+    systemctl --user enable ram-monitor.service 2>/dev/null || true
+    systemctl --user start ram-monitor.service 2>/dev/null || true
+fi
+
+echo "ram-monitor: Installation complete!"
+echo "Monitor will start automatically on next login."
+echo "To start immediately: systemctl --user start ram-monitor.service"
+echo "To check status: systemctl --user status ram-monitor.service"
+echo "To view logs: journalctl --user -u ram-monitor"

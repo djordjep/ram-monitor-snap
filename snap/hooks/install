@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+msg_prefix="ram-monitor post-install:"
+echo "${msg_prefix} =========================================" >&2
+echo "${msg_prefix} IMPORTANT: Snap limitations detected" >&2
+echo "${msg_prefix} =========================================" >&2
+echo "${msg_prefix} This snap cannot auto-start reliably." >&2
+echo "${msg_prefix}" >&2
+echo "${msg_prefix} To start monitoring manually:" >&2
+echo "${msg_prefix}   snap run ram-monitor.ram-monitor" >&2
+echo "${msg_prefix}" >&2
+echo "${msg_prefix} For best experience, use .deb instead:" >&2
+echo "${msg_prefix}   https://github.com/djordjep/ram-monitor-snap/releases" >&2
+echo "${msg_prefix} =========================================" >&2

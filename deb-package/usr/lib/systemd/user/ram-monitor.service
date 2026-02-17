@@ -1,0 +1,13 @@
+[Unit]
+Description=RAM Monitor Service
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ram-monitor.sh
+Restart=always
+RestartSec=5
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+[Install]
+WantedBy=default.target
