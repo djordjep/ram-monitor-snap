@@ -79,13 +79,37 @@ if ! validate_integer "$cooldown"; then
 fi
 
 # Avoid duplicate loops when autostart and manual execution overlap.
-runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
-lock_dir="${runtime_dir}/ram-monitor.lock"
-if ! mkdir "$lock_dir" 2>/dev/null; then
-    log "Another instance is already running; exiting."
-    exit 0
+# Prefer snap user-writable paths over runtime tmp locations.
+lock_root="${SNAP_USER_COMMON:-${SNAP_USER_DATA:-${XDG_RUNTIME_DIR:-/tmp}}}"
+mkdir -p "$lock_root"
+lock_dir="${lock_root}/ram-monitor.lock"
+lock_pid_file="${lock_dir}/pid"
+
+if mkdir "$lock_dir" 2>/dev/null; then
+    echo "$$" > "$lock_pid_file"
+else
+    existing_pid=""
+    if [ -f "$lock_pid_file" ]; then
+        existing_pid="$(cat "$lock_pid_file" 2>/dev/null || true)"
+    fi
+
+    if [ -n "$existing_pid" ]; then
+        if kill -0 "$existing_pid" 2>/dev/null || [ -d "/proc/$existing_pid" ]; then
+            log "Another instance is already running (pid: $existing_pid); exiting."
+            exit 0
+        fi
+    fi
+
+    log "Removing stale lock and continuing."
+    rm -rf "$lock_dir" 2>/dev/null || true
+    if mkdir "$lock_dir" 2>/dev/null; then
+        echo "$$" > "$lock_pid_file"
+    else
+        log "Failed to acquire instance lock at '$lock_dir'; exiting."
+        exit 1
+    fi
 fi
-trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
+trap 'rm -f "$lock_pid_file"; rmdir "$lock_dir" 2>/dev/null || true' EXIT
 
 log "Monitoring RAM with threshold: $threshold%, interval: ${interval}s, cooldown: ${cooldown}s"
 
